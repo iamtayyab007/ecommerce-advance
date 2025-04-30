@@ -13,10 +13,11 @@ export async function POST(req: Request) {
     });
   }
 
-  const user = await client.users.getUser(userId);
+  //const user = await client.users.getUser(userId);
 
   try {
-    const { username, name, address, phone, zipcode } = await req.json();
+    const { username, name, address, phone, zipcode, clerkId, email } =
+      await req.json();
 
     const userExists = await User.findOne({ username });
     if (userExists) {
@@ -24,15 +25,27 @@ export async function POST(req: Request) {
     }
 
     const saveUser = await User.create({
-      clerkId: user.id,
-      email: user.primaryEmailAddress?.emailAddress,
+      clerkId,
+      email,
       username,
       name,
       address,
       phone,
       zipcode,
     });
-    await saveUser.save();
+    const existingUser = await client.users.getUser(clerkId);
+    await client.users.updateUser(clerkId, {
+      publicMetadata: {
+        ...existingUser.publicMetadata,
+        requiredFieldsCompleted: true,
+        username,
+        name,
+        address,
+        phone,
+        zipcode,
+      },
+    });
+
     return Response.json(
       {
         success: true,
