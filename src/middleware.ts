@@ -9,7 +9,7 @@ export default clerkMiddleware(async (auth, req) => {
   const session = await auth();
   const { userId, sessionClaims } = session;
   const url = req.nextUrl;
-  console.log("session claim", sessionClaims);
+
   if (!userId) {
     return NextResponse.next();
   }
@@ -21,7 +21,7 @@ export default clerkMiddleware(async (auth, req) => {
   };
 
   const role = metadata?.role;
-  console.log("role", role);
+
   const requiredFieldsCompleted = metadata?.requiredFieldsCompleted;
 
   const isOnRequiredFieldsPage = isRequiredField(req);
